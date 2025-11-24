@@ -33,31 +33,35 @@ You will need a Raspberry Pi, a Pi Camera Module, and a GPS module that has a PP
 
 ### Part 2: Software & Dependencies
 
-Before running the script, you need to configure the Raspberry Pi and install the necessary Python libraries.
-
 1.  **Enable Pi Interfaces:**
-    *   Open the configuration tool in your terminal:
-        ```bash
-        sudo raspi-config
-        ```
+    *   Open the configuration tool in your terminal: `sudo raspi-config`
     *   Navigate to **Interface Options**.
     *   Enable **I1 Legacy Camera**.
-    *   Enable **I5 Serial Port**.
-        *   When asked "Would you like a login shell to be accessible over serial?", select **NO**.
-        *   When asked "Would you like the serial port hardware to be enabled?", select **YES**.
+    *   Enable **I5 Serial Port** (disable login shell, enable hardware port).
     *   Finish and reboot if prompted.
 
-2.  **Install System and Python Libraries:**
-    *   Open a terminal and run the following commands to install everything needed. The `picamera2` and `gpiod` libraries are best installed from the system's package manager on recent versions of Pi OS.
-
+2.  **Install System-level Libraries:**
+    *   The `picamera2` and `gpiod` libraries have deep integration with the OS, so they should be installed globally using `apt`.
     ```bash
-    # Update your package list
     sudo apt update
-
-    # Install system libraries for camera and GPIO
     sudo apt install -y python3-picamera2 python3-gpiod
+    ```
 
-    # Install Python libraries using pip for serial data, NMEA parsing, and EXIF handling
+3.  **Set up the Python Virtual Environment:**
+    *   Navigate to the directory where `capture_with_gps.py` is saved.
+    *   Create the virtual environment:
+        ```bash
+        python3 -m venv venv
+        ```
+    *   Activate the environment:
+        ```bash
+        source venv/bin/activate
+        ```
+        Your prompt will now start with `(venv)`.
+
+4.  **Install Python Libraries:**
+    *   With the `venv` active, install the remaining libraries using `pip`. They will be installed safely inside your project's `venv` folder.
+    ```bash
     pip install pyserial pynmea2 piexif
     ```
 
@@ -86,7 +90,11 @@ The script `capture_with_gps.py` has been created for you. Here is a brief expla
 
 3.  **Run the Python Script:**
     *   Navigate to the directory where the script is saved.
-    *   Execute it:
+    *   **Activate the virtual environment**:
+        ```bash
+        source venv/bin/activate
+        ```
+    *   Execute the script:
         ```bash
         python capture_with_gps.py
         ```
@@ -95,6 +103,6 @@ The script `capture_with_gps.py` has been created for you. Here is a brief expla
     *   The script will first wait for a valid GPS fix from the background thread.
     *   Once it has a fix, it will print "Monitoring GPIO pin...".
     *   Each time a PPS pulse is received (once per second), it will take a photo and save it to the `gps_photos` directory.
-    *   Press `Ctrl+C` to stop the script gracefully.
+    *   Press `Ctrl+C` to stop the script gracefully. When you are done, you can leave the environment by typing `deactivate`.
 
 You can then view the photos in the `gps_photos` folder and check their properties/details to see the embedded GPS coordinates.
